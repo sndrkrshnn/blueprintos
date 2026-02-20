@@ -1,0 +1,28 @@
+[package]
+name = "blueprint-sts"
+version = "0.1.0"
+edition = "2021"
+description = "BlueprintOS Speech-to-Speech service with Qwen3 Omni"
+
+[[bin]]
+name = "blueprint-sts"
+path = "src/main.rs"
+
+[dependencies]
+tokio = { version = "1.35", features = ["full"] }
+tokio-stream = { version = "0.1", features = ["sync"] }
+futures = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+reqwest = { version = "0.11", features = ["json", "stream", "multipart"] }
+bytes = "1.5"
+ringbuf = "0.3"
+cpal = "0.15"  # Cross-platform audio I/O
+hound = "3.4"  # WAV reading/writing
+clap = { version = "4.4", features = ["derive"] }
+tokio-tungstenite = { version = "0.21", features = ["native-tls"] }
+uuid = { version = "1.6", features = ["v4"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+anyhow = "1.0"
+async-trait = "0.1"

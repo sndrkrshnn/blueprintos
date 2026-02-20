@@ -1,58 +1,131 @@
-# BlueprintOS – Project Plan
+# BlueprintOS — Project Plan (Agentic Voice-First OS)
 
-## Goal
-Create a privacy‑first, modular operating system optimized for AI workloads and secure personal computing. The OS will provide a lightweight base, a secure package manager, and built‑in AI service sandboxing.
+## Vision Shift
+BlueprintOS is no longer a general-purpose OS. It's now an **agentic voice-first intelligent layer** on Linux, powered by Qwen3 Omni for multimodal understanding.
 
-## Phase‑Based Roadmap
+## Core Architecture Decisions
 
-### Phase 1 – Foundations (Weeks 1‑4)
-- **Repository setup** – GitHub repo, MIT license, CODE‑OF‑CONDUCT, CONTRIBUTING guide.
-- **CI pipeline** – GitHub Actions: lint (rustfmt, clippy), build `bpkg`, test container builds.
-- **Base image** – Hardened Debian/Arch image with SELinux, AppArmor, secure defaults.
-- **Package manager prototype** – `bpkg` (Rust) with install, remove, list commands.
-- **Documentation** – Quick‑start guide, architecture overview.
+1. **Linux base** — Distribution-agnostic layer (Ubuntu/Debian as reference)
+2. **Voice-first UX** — No traditional GUI; voice + visual output only
+3. **Qwen3 Omni** — Central AI brain for all interactions
+4. **Agent bus** — Message-passing architecture for task orchestration
 
-### Phase 2 – AI Runtime (Weeks 5‑8)
-- **Container runtime** – Podman/nerdctl integration, GPU pass‑through (CUDA, ROCm).
-- **Sandbox policy** – seccomp, user namespaces, resource limits.
-- **First AI module** – Embedding service (sentence‑transformers) packaged as a `bpkg` module.
-- **Web dashboard** – Minimal UI to start/stop AI services, view logs.
+## Phase-Based Roadmap
 
-### Phase 3 – Ecosystem (Weeks 9‑12)
-- **Package repository** – Hosted on GitHub Packages or an S3 bucket.
-- **Module catalog** – List of official modules (LLM inference, RAG, vector DB).
-- **Community onboarding** – Templates for new modules, CI templates.
-- **Security audit** – Review kernel hardening, container policies.
+### Phase 1 — Speech-to-Speech Foundation (Weeks 1‑2)
+| Task | Owner | Deliverable |
+|------|-------|-------------|
+| Wake word detection ("Hey Blueprint") | STS | Rust binary, <500ms latency |
+| Audio capture/playback (cpal) | STS | Cross-platform mic/speaker I/O |
+| Qwen3 Omni STS API client | STS | Rust client, streaming audio in/out |
+| Chunked audio streaming pipeline | STS | <200ms latency from speech to response |
+| Basic agent loop (audio → Qwen → audio) | Core | Working STS demo |
 
-### Phase 4 – Beta & Launch (Weeks 13‑24)
-- **Beta testing** – Invite early adopters (privacy‑focused devs, edge hobbyists).
-- **Feature freeze** – Stabilise core components, polish docs.
-- **Public release** – Announce on Hacker News, Reddit, relevant Discords.
-- **Post‑launch** – Roadmap for extensions (file‑system encryption, TPM integration).
+### Phase 2 — Qwen3 Omni Integration (Weeks 3‑4)
+| Task | Owner | Deliverable |
+|------|-------|-------------|
+| Qwen3 Omni API client | Core | Rust crate for streaming inference |
+| Multimodal input handling (voice + text) | Core | Unified input pipeline |
+| Streaming response processing | Core | Real-time TTS + partial visual updates |
+| Context memory across sessions | Core | SQLite persistence |
 
-## Key Deliverables
-| Deliverable | Owner | Target Date |
-|-------------|-------|-------------|
-| Repo + CI   | Core Team | Week 1 |
-| Hardened Base Image | Sys Team | Week 2 |
-| `bpkg` CLI  | Rust Dev | Week 3 |
-| AI Sandbox  | AI Team | Week 6 |
-| Web Dashboard| UI Team | Week 8 |
-| Module Registry | Ops | Week 10 |
-| Beta Release| All | Week 14 |
-| Public Launch| All | Week 24 |
+### Phase 3 — Visual Layer (Weeks 5‑6)
+| Task | Owner | Deliverable |
+|------|-------|-------------|
+| Canvas-based UI renderer | UI | HTML5 Canvas, smooth animations |
+| Agent thought visualization | UI | Streaming token display, confidence scores |
+| Status indicators (system health) | UI | Charts, progress bars, animations |
+| Error visualization | UI | Friendly voice + visual feedback |
+
+### Phase 4 — Agent Ecosystem (Weeks 7‑10)
+| Agent | Capabilities |
+|-------|-------------|
+| `agent-files` | File search, read, write, organize |
+| `agent-system` | Process management, memory, CPU monitoring |
+| `agent-network` | Connectivity checks, curl, ping |
+| `agent-shell` | Execute commands, return structured output |
+| `agent-calendar` | Event creation, query, reminders |
+
+### Phase 5 — Distribution (Weeks 11‑12)
+| Task | Owner | Deliverable |
+|------|-------|-------------|
+| Installer script (Linux overlay) | DevOps | `./install.sh` — single-command setup |
+| Base image (Docker/VM) | DevOps | Pre-built BlueprintOS image |
+| Documentation | Docs | Voice command reference, architecture guide |
+| Community setup | All | Issues, PR templates, contributing guide |
+
+## Repository Structure
+
+```
+blueprintos/
+├── README.md
+├── PROJECT_PLAN.md
+├── LICENSE
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+├── install.sh                 # Main installer
+├── blueprint-core/            # Rust agent orchestrator
+│   ├── Cargo.toml
+│   └── src/
+│       ├── main.rs
+│       ├── agent/
+│       ├── bus/
+│       └── cli/
+├── blueprint-voice/           # Python voice pipeline
+│   ├── blueprint_voice/
+│   │   ├── stt.py
+│   │   ├── tts.py
+│   │   ├── wakeword.py
+│   │   └── __init__.py
+│   └── requirements.txt
+├── blueprint-ui/              # Visual output layer
+│   ├── index.html
+│   ├── styles.css
+│   └── app.js
+├── blueprint-agents/          # Task-specific agents
+│   ├── files/
+│   ├── system/
+│   ├── network/
+│   └── shell/
+└── docs/
+    ├── voice-commands.md
+    └── architecture.md
+```
+
+## Immediate Next Actions
+
+1. **Create Rust core crate** (`blueprint-core`) with agent bus
+2. **Create Python voice package** (`blueprint-voice`) with STT/TTS stubs
+3. **Create HTML/JS UI** (`blueprint-ui`) with Canvas rendering
+4. **Set up CI** — Rust lint + test, Python lint + test
+5. **Write `install.sh`** — Detect Linux, install dependencies, clone if needed
+
+## Technology Choices
+
+| Layer | Tech | Rationale |
+|-------|------|-----------|
+| Core | Rust | Safe, fast, great for agent orchestration |
+| Voice | Python | Rich STT/TTS ecosystem, easy prototyping |
+| UI | HTML5 Canvas | Cross-platform, easy to embed, smooth animations |
+| Runtime | Linux native | Runs on any distro or as Docker container |
 
 ## Risks & Mitigations
-- **Security regressions** – Frequent static analysis, fuzzing of container runtime.
-- **GPU driver churn** – Abstract GPU via `nvidia-container-runtime` and `rocm` wrappers.
-- **Community traction** – Early demos, tie‑ins with privacy‑focused projects (e.g., Tails, GrapheneOS).
 
-## Immediate Next Actions (you can approve)
-1. Create GitHub repo `BlueprintOS/blueprintos`.
-2. Initialise `bpkg` Rust crate (binary).
-3. Add CI workflow file (`.github/workflows/ci.yml`).
-4. Open first issue: *"Setup hardened base Docker image"*.
-5. Draft initial README (already created).
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Qwen3 Omni API rate limits | Medium | Implement caching, graceful fallback to local STT |
+| Voice latency >1s | High | Optimize wake word, stream partial results early |
+| UI performance on low-end devices | Medium | Lazy rendering, fallback to text-only mode |
+
+## Success Criteria
+
+- [ ] Voice command → response in <2 seconds (average)
+- [ ] Wake word detection accuracy >95%
+- [ ] 5 functional task agents (files, system, network, shell, calendar)
+- [ ] Visual UI renders at 60fps on reference hardware
+- [ ] Installable on clean Ubuntu 22.04 in <10 minutes
 
 ---
-**Let me know** if you want any adjustments to the timeline, preferred languages, or target hardware (x86‑64 vs ARM). I’ll then spin up the repo and push the initial commits.
+
+**Ready to start?** I can scaffold all crates and services, set up the GitHub repo (already created), and push the initial commit.

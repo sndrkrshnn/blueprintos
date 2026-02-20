@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlueprintOS Visual Interface</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Status bar -->
+        <div id="status-bar">
+            <div id="system-status" class="status-ok">● System Ready</div>
+            <div id="voice-status">🎤 Listening</div>
+            <div id="time"></div>
+        </div>
+
+        <!-- Main visual area -->
+        <div id="main-display">
+            <canvas id="blueprint-canvas"></canvas>
+
+            <!-- Thought bubble -->
+            <div id="thought-bubble" class="hidden">
+                <div class="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+                <div id="thought-text"></div>
+            </div>
+
+            <!-- Result grid -->
+            <div id="result-grid" class="hidden"></div>
+        </div>
+
+        <!-- Command history -->
+        <div id="command-history">
+            <div class="history-header">Recent Commands</div>
+            <div id="history-list"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
