@@ -1,0 +1,12 @@
+[Unit]
+Description=MuninOS Visual Shell
+After=graphical.target network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/munin-ui
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

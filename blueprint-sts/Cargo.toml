@@ -2,7 +2,7 @@
 name = "blueprint-sts"
 version = "0.1.0"
 edition = "2021"
-description = "BlueprintOS Speech-to-Speech service with Qwen3 Omni"
+description = "MuninOS Speech-to-Speech service with Qwen3 Omni"
 
 [[bin]]
 name = "blueprint-sts"

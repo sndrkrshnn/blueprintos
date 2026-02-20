@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 BUILD_DIR="$ROOT/build/kernel"
 KERNEL_SRC="${KERNEL_SRC:-$ROOT/workdir/linux}"
-DEFCONFIG="$ROOT/distro/kernel/configs/blueprint_defconfig"
+DEFCONFIG="$ROOT/distro/kernel/configs/munin_defconfig"
 
 mkdir -p "$BUILD_DIR"
 

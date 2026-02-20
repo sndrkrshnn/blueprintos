@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-ISO="$ROOT/build/blueprintos-dev.iso"
+ISO="$ROOT/build/muninos-dev.iso"
 RAM="${RAM:-4096}"
 CPUS="${CPUS:-2}"
 

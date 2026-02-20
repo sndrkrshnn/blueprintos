@@ -24,7 +24,7 @@ struct Args {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
-    /// Start the BlueprintOS agent core
+    /// Start the MuninOS agent core
     Start,
     /// Send a command to the bus
     Send { message: String },
@@ -44,7 +44,7 @@ async fn main() -> Result<()> {
 
     match args.command {
         Commands::Start => {
-            tracing::info!("Starting BlueprintOS Core with sts={}", args.sts);
+            tracing::info!("Starting MuninOS Core with sts={}", args.sts);
             if args.sts {
                 bus.start_voice_mode(args.api_endpoint).await?;
             } else {

@@ -1,72 +1,54 @@
-# BlueprintOS
+# MuninOS
 
-BlueprintOS is now a **Linux distribution project** (not just an app layer).
+MuninOS is a **standalone Linux distribution** project (not an app running inside another OS).
 
-## What changed
+## Core direction
 - Own distro structure (`distro/`)
-- Custom Linux kernel config (`distro/kernel/configs/blueprint_defconfig`)
-- Root filesystem build pipeline (Debian base via `debootstrap`)
-- Bootable ISO pipeline (GRUB + xorriso)
-- First-party installer/bootstrap scripts
+- Custom kernel config (`distro/kernel/configs/munin_defconfig`)
+- Rootfs build pipeline (Debian base via `debootstrap`)
+- Bootable ISO pipeline (GRUB + `grub-mkrescue`)
+- First-party OS services (`munin-core`, `munin-sts`, `munin-ui`)
 
-## Goal
-Build a bootable, voice-first, agentic Linux distro with:
-- Custom kernel tuning for low-latency audio + AI workloads
-- Native speech-to-speech runtime
-- Visual shell/dashboard
-- Deterministic image build process
+## Build quickstart (Debian/Ubuntu host)
+```bash
+sudo apt update
+sudo apt install -y build-essential git bc bison flex libssl-dev libelf-dev \
+  debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools \
+  rsync cpio dosfstools qemu-system-x86
 
-## Current repo layout
+make rootfs
+make iso
+make qemu
+```
 
+Artifacts:
+- `build/live/vmlinuz`
+- `build/live/initrd.img`
+- `build/live/filesystem.squashfs`
+- `build/muninos-dev.iso`
+
+### Custom kernel integration
+If `build/kernel/bzImage` exists (from `make kernel`), ISO build will prefer it automatically as `/live/vmlinuz`.
+
+## Repo structure
 ```text
-blueprintos/
+.
 ├── distro/
-│   ├── kernel/
-│   │   ├── configs/blueprint_defconfig
-│   │   └── patches/
+│   ├── kernel/configs/munin_defconfig
 │   ├── rootfs/
 │   │   ├── overlay/
-│   │   │   ├── etc/blueprintos-release
-│   │   │   └── usr/local/bin/blueprint-firstboot
 │   │   └── packages/base.txt
-│   ├── iso/
-│   │   └── grub/grub.cfg
+│   ├── iso/grub/grub.cfg
 │   └── scripts/
 │       ├── build-kernel.sh
 │       ├── build-rootfs.sh
-│       └── build-iso.sh
+│       ├── build-iso.sh
+│       └── run-qemu.sh
 ├── blueprint-core/
 ├── blueprint-sts/
 ├── blueprint-ui/
 └── Makefile
 ```
 
-## Core setup (today)
-
-### 1) Install build dependencies (Ubuntu/Debian host)
-```bash
-sudo apt update
-sudo apt install -y build-essential git bc bison flex libssl-dev libelf-dev \
-  debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools \
-  rsync cpio dosfstools
-```
-
-### 2) Build kernel + rootfs + ISO
-```bash
-make kernel
-make rootfs
-make iso
-```
-
-Output artifacts:
-- `build/kernel/bzImage`
-- `build/rootfs.squashfs`
-- `build/blueprintos-dev.iso`
-
-## Notes
-- This is **core distro scaffolding** for day-1.
-- Kernel and ISO scripts are production-oriented stubs and can now be iterated.
-- Next milestone: boot test in QEMU + firstboot service wiring + STS daemon in init system.
-
-## License
-MIT
+## Status
+This push focuses on **distro core bring-up**: boot artifacts, ISO generation, and VM boot testing path.

@@ -2,7 +2,7 @@
 name = "blueprint-core"
 version = "0.1.0"
 edition = "2021"
-description = "BlueprintOS Core — Agent orchestration and message bus"
+description = "MuninOS Core — Agent orchestration and message bus"
 
 [[bin]]
 name = "blueprint-core"

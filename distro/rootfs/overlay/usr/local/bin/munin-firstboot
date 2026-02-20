@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[MuninOS] first boot initialization"
+
+# Enable core services on first boot
+systemctl daemon-reload || true
+systemctl enable munin-core.service munin-sts.service munin-ui.service || true
+
+echo "[MuninOS] first boot complete"

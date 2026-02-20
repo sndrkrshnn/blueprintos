@@ -110,7 +110,7 @@ impl MessageBus {
 
     pub async fn run_cli(&self) -> Result<()> {
         use std::io::{self, Write};
-        println!("BlueprintOS CLI mode. Type 'quit' to exit.");
+        println!("MuninOS CLI mode. Type 'quit' to exit.");
 
         let stdin = io::stdin();
         loop {

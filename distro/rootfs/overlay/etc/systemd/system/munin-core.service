@@ -1,0 +1,13 @@
+[Unit]
+Description=MuninOS Core Orchestrator
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/munin-core
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

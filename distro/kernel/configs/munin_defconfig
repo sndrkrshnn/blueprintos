@@ -1,4 +1,4 @@
-# BlueprintOS kernel baseline (starting point)
+# MuninOS kernel baseline (starting point)
 CONFIG_64BIT=y
 CONFIG_X86_64=y
 CONFIG_PREEMPT=y

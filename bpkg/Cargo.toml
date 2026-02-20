@@ -2,7 +2,7 @@
 name = "bpkg"
 version = "0.1.0"
 edition = "2021"
-description = "BlueprintOS Package Manager"
+description = "MuninOS Package Manager"
 
 [[bin]]
 name = "bpkg"

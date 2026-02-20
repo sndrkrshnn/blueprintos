@@ -1,4 +1,4 @@
-// BlueprintOS Visual Interface - JavaScript
+// MuninOS Visual Interface - JavaScript
 
 class BlueprintUI {
     constructor() {
@@ -31,7 +31,7 @@ class BlueprintUI {
     }
 
     connectWebSocket() {
-        // Connect to BlueprintOS core via WebSocket
+        // Connect to MuninOS core via WebSocket
         const wsUrl = `ws://${window.location.host}/ws`;
         try {
             this.socket = new WebSocket('ws://localhost:8765');

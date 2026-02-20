@@ -1,4 +1,4 @@
-# Building BlueprintOS (distro core)
+# Building MuninOS (distro core)
 
 ## Host requirements (Debian/Ubuntu)
 ```bash
@@ -19,11 +19,12 @@ Artifacts:
 - `build/live/vmlinuz`
 - `build/live/initrd.img`
 - `build/live/filesystem.squashfs`
-- `build/blueprintos-dev.iso`
+- `build/muninos-dev.iso`
 
-## Custom kernel path
-Custom kernel scaffolding remains at:
-- `distro/kernel/configs/blueprint_defconfig`
-- `distro/scripts/build-kernel.sh`
-
-Current live ISO path uses Debian kernel+initramfs from rootfs for reliable bring-up. Next iteration can switch ISO to custom kernel once initramfs integration is complete.
+## Optional custom kernel
+```bash
+make kernel
+make rootfs
+make iso
+```
+If `build/kernel/bzImage` exists, ISO build prefers it as kernel payload.

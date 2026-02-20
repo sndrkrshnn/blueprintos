@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 #[derive(Parser, Debug)]
 #[command(name = "blueprint-sts")]
-#[command(author, version, about = "BlueprintOS Speech-to-Speech service")]
+#[command(author, version, about = "MuninOS Speech-to-Speech service")]
 struct Args {
     #[command(subcommand)]
     command: Commands,
@@ -69,7 +69,7 @@ impl STSService {
     }
 
     async fn run(&self) -> Result<()> {
-        info!("Starting BlueprintOS STS session: {}", self.session_id);
+        info!("Starting MuninOS STS session: {}", self.session_id);
         info!("Pipeline: audio-in -> qwen3-omni -> audio-out");
 
         loop {
