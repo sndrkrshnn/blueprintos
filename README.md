@@ -18,6 +18,7 @@ sudo apt install -y build-essential git bc bison flex libssl-dev libelf-dev \
 
 make bins      # builds munin-core, munin-sts, munin-ui
 make rootfs
+make validate  # verifies binaries/units/assets inside rootfs
 make iso
 make qemu
 ```

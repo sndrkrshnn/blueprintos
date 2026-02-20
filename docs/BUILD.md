@@ -12,8 +12,14 @@ sudo apt install -y build-essential git bc bison flex libssl-dev libelf-dev \
 ```bash
 make bins
 make rootfs
+make validate
 make iso
 make qemu
+```
+
+Or run end-to-end in one shot:
+```bash
+make ci
 ```
 
 `make bins` compiles:
@@ -36,6 +42,15 @@ make rootfs
 make iso
 ```
 If `build/kernel/bzImage` exists, ISO build prefers it.
+
+## Validation checks
+`make validate` ensures rootfs contains:
+- `/opt/muninos/bin/munin-core`
+- `/opt/muninos/bin/munin-sts`
+- `/opt/muninos/bin/munin-ui`
+- systemd units: `munin-core/sts/ui/firstboot.service`
+- UI assets at `/opt/muninos/ui/index.html`
+- `/etc/default/munin-sts`
 
 ## First boot behavior
 - `munin-firstboot.service` runs `munin-firstboot-wizard` once
