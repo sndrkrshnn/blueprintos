@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: all bins kernel rootfs validate iso qemu ci clean
+.PHONY: all bins kernel rootfs validate iso qemu smoke ci ci-smoke clean
 
 all: bins rootfs validate iso
 
@@ -22,8 +22,14 @@ iso: validate
 qemu:
 	bash distro/scripts/run-qemu.sh
 
+smoke:
+	bash distro/scripts/qemu-smoke-test.sh
+
 ci:
 	bash distro/scripts/ci-build.sh
+
+ci-smoke:
+	bash distro/scripts/ci-boot-smoke.sh
 
 clean:
 	rm -rf build workdir/iso

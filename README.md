@@ -20,6 +20,7 @@ make bins      # builds munin-core, munin-sts, munin-ui
 make rootfs
 make validate  # verifies binaries/units/assets inside rootfs
 make iso
+make smoke     # headless QEMU boot log smoke test
 make qemu
 ```
 

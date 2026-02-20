@@ -22,6 +22,11 @@ Or run end-to-end in one shot:
 make ci
 ```
 
+With boot smoke test included:
+```bash
+make ci-smoke
+```
+
 `make bins` compiles:
 - `munin-core`
 - `munin-sts`
@@ -51,6 +56,17 @@ If `build/kernel/bzImage` exists, ISO build prefers it.
 - systemd units: `munin-core/sts/ui/firstboot.service`
 - UI assets at `/opt/muninos/ui/index.html`
 - `/etc/default/munin-sts`
+
+## QEMU smoke test
+`make smoke` boots the ISO headless and checks serial logs for Linux/systemd boot markers.
+
+Artifacts:
+- `build/smoke/serial.log`
+
+Tune timeout if needed:
+```bash
+TIMEOUT_SECS=180 make smoke
+```
 
 ## First boot behavior
 - `munin-firstboot.service` runs `munin-firstboot-wizard` once
