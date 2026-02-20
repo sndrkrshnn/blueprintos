@@ -2,10 +2,13 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-WORK="$ROOT/workdir/rootfs"
 BUILD="$ROOT/build"
 OVERLAY="$ROOT/distro/rootfs/overlay"
 PKGS_FILE="$ROOT/distro/rootfs/packages/base.txt"
+
+# Default workspace (can be overridden)
+WORK_BASE="${WORK_BASE:-$ROOT/workdir}"
+WORK="$WORK_BASE/rootfs"
 
 # Use sudo only when needed/available
 if [[ "$(id -u)" -eq 0 ]]; then
@@ -17,6 +20,26 @@ else
     echo "[rootfs] ERROR: need root privileges or sudo installed"
     exit 1
   fi
+fi
+
+# If bind-mounted FS has nodev/noexec (common on macOS Docker mounts),
+# debootstrap fails on mknod. Fall back to container-local /tmp.
+pick_workdir() {
+  local candidate="$1"
+  $SUDO mkdir -p "$candidate"
+  local probe="$candidate/.munin_devnull_probe"
+
+  if $SUDO mknod "$probe" c 1 3 >/dev/null 2>&1; then
+    $SUDO rm -f "$probe"
+    echo "$candidate"
+  else
+    echo "/tmp/muninos-work/rootfs"
+  fi
+}
+
+WORK="$(pick_workdir "$WORK")"
+if [[ "$WORK" == "/tmp/muninos-work/rootfs" ]]; then
+  echo "[rootfs] info: source mount does not allow device nodes; using container-local $WORK"
 fi
 
 $SUDO mkdir -p "$WORK" "$BUILD/live"
