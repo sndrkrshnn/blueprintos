@@ -1,13 +1,11 @@
 use anyhow::Result;
-use async_channel::{bounded, Receiver, Sender};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::RwLock;
-use tokio_stream::wrappers::ReceiverStream;
-use futures::StreamExt;
+use tokio::sync::{broadcast, RwLock};
+use uuid::Uuid;
 
-pub const DEFAULT_BUFFER_SIZE: usize = 32;
+pub const DEFAULT_BUFFER_SIZE: usize = 64;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Message {
@@ -30,116 +28,89 @@ pub enum Topic {
     Error,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct AgentId(pub String);
 
 pub struct MessageBus {
-    topics: Arc<RwLock<HashMap<Topic, Sender<Message>>>>,
-    agents: Arc<RwLock<HashMap<AgentId, Sender<Message>>>>,
+    topics: Arc<RwLock<HashMap<Topic, broadcast::Sender<Message>>>>,
+    agents: Arc<RwLock<Vec<AgentId>>>,
 }
 
 impl MessageBus {
     pub async fn new() -> Result<Self> {
-        let topics = Arc::new(RwLock::new(HashMap::new()));
-        let agents = Arc::new(RwLock::new(HashMap::new()));
+        let bus = Self {
+            topics: Arc::new(RwLock::new(HashMap::new())),
+            agents: Arc::new(RwLock::new(Vec::new())),
+        };
 
-        // Initialize default topics
-        Self::init_topic(&topics, Topic::System).await;
-        Self::init_topic(&topics, Topic::Voice).await;
-        Self::init_topic(&topics, Topic::Files).await;
-        Self::init_topic(&topics, Topic::Network).await;
-        Self::init_topic(&topics, Topic::Shell).await;
-        Self::init_topic(&topics, Topic::Calendar).await;
-        Self::init_topic(&topics, Topic::UI).await;
-        Self::init_topic(&topics, Topic::Error).await;
-
-        Ok(Self { topics, agents })
-    }
-
-    async fn init_topic(topics: &Arc<RwLock<HashMap<Topic, Sender<Message>>>>, topic: Topic) {
-        let (tx, _rx) = bounded::<Message>(DEFAULT_BUFFER_SIZE);
-        let mut map = topics.write().await;
-        map.insert(topic, tx);
-    }
-
-    pub async fn subscribe(&self, agent: AgentId, topic: Topic) -> Receiver<Message> {
-        let topic_map = self.topics.read().await;
-        if let Some(tx) = topic_map.get(&topic) {
-            let rx = tx.subscribe();
-            self.agents.write().await.insert(agent, tx.clone());
-            return rx;
+        for topic in [
+            Topic::System,
+            Topic::Voice,
+            Topic::Files,
+            Topic::Network,
+            Topic::Shell,
+            Topic::Calendar,
+            Topic::UI,
+            Topic::Error,
+        ] {
+            bus.ensure_topic(topic).await;
         }
-        // If topic doesn't exist, create it
-        drop(topic_map);
-        let (tx, rx) = bounded::<Message>(DEFAULT_BUFFER_SIZE);
-        self.topics.write().await.insert(topic, tx.clone());
-        self.agents.write().await.insert(agent, tx.clone());
-        rx
+
+        Ok(bus)
+    }
+
+    async fn ensure_topic(&self, topic: Topic) {
+        let mut map = self.topics.write().await;
+        map.entry(topic).or_insert_with(|| {
+            let (tx, _) = broadcast::channel(DEFAULT_BUFFER_SIZE);
+            tx
+        });
+    }
+
+    pub async fn subscribe(&self, agent: AgentId, topic: Topic) -> broadcast::Receiver<Message> {
+        self.ensure_topic(topic.clone()).await;
+        self.agents.write().await.push(agent);
+
+        let map = self.topics.read().await;
+        map.get(&topic).expect("topic exists").subscribe()
     }
 
     pub async fn send(&self, topic: Topic, payload: impl Into<serde_json::Value>) -> Result<()> {
-        let topic_map = self.topics.read().await;
-        if let Some(tx) = topic_map.get(&topic) {
-            let message = Message {
-                id: uuid::Uuid::new_v4().to_string(),
-                topic: topic.clone(),
-                payload: payload.into(),
-                sender: AgentId("system".to_string()),
-                timestamp: std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)?
-                    .as_millis() as u64,
-            };
-            tx.send(message).await?;
-        }
-        Ok(())
-    }
-
-    pub async fn broadcast(&self, topic: Topic, payload: impl Into<serde_json::Value>) -> Result<()> {
-        let message = Message {
-            id: uuid::Uuid::new_v4().to_string(),
+        self.ensure_topic(topic.clone()).await;
+        let msg = Message {
+            id: Uuid::new_v4().to_string(),
             topic: topic.clone(),
             payload: payload.into(),
-            sender: AgentId("system".to_string()),
-            timestamp: std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)?
-                .as_millis() as u64,
+            sender: AgentId("system".into()),
+            timestamp: now_ms(),
         };
-        let topic_map = self.topics.read().await;
-        for tx in topic_map.values() {
-            tx.send(message.clone()).await?;
+
+        let map = self.topics.read().await;
+        if let Some(tx) = map.get(&topic) {
+            let _ = tx.send(msg);
         }
         Ok(())
-    }
-
-    pub async fn run(&self) -> Result<()> {
-        // Main loop - keeps the bus alive
-        loop {
-            tokio::time::sleep(tokio::time::Duration::from_secs(60)).await;
-        }
     }
 
     pub async fn list_agents(&self) -> Result<Vec<String>> {
         let agents = self.agents.read().await;
-        Ok(agents.keys().map(|a| a.0.clone()).collect())
+        Ok(agents.iter().map(|a| a.0.clone()).collect())
     }
 
     pub async fn start_voice_mode(&self, api_endpoint: String) -> Result<()> {
-        // Subscribe to voice topic
-        let rx = self.subscribe(AgentId("voice-core".to_string()), Topic::Voice).await;
-        let stream = ReceiverStream::new(rx);
-        let mut typed_stream = stream.map(|msg| msg.payload);
+        tracing::info!("Voice/STS mode active. Endpoint: {}", api_endpoint);
+        self.run().await
+    }
 
-        // Placeholder for Qwen3 Omni streaming integration
-        tracing::info!("Voice mode active, listening on topic: {:?}", Topic::Voice);
-
-        // Keep alive
-        self.run().await?;
-        Ok(())
+    pub async fn run(&self) -> Result<()> {
+        loop {
+            tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+        }
     }
 
     pub async fn run_cli(&self) -> Result<()> {
-        println!("BlueprintOS CLI Mode - Type 'quit' to exit");
         use std::io::{self, Write};
+        println!("BlueprintOS CLI mode. Type 'quit' to exit.");
 
         let stdin = io::stdin();
         loop {
@@ -150,18 +121,23 @@ impl MessageBus {
             if stdin.read_line(&mut input)? == 0 {
                 break;
             }
-
-            let input = input.trim().to_string();
-            if input.is_empty() || input == "quit" {
+            let input = input.trim();
+            if input.eq_ignore_ascii_case("quit") || input.is_empty() {
                 break;
             }
-
-            self.send(Topic::System, input.clone()).await?;
-            println!("Sent to system: {}", input);
+            self.send(Topic::System, input.to_string()).await?;
+            println!("sent: {}", input);
         }
 
         Ok(())
     }
+}
+
+fn now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis() as u64
 }
 
 #[cfg(test)]
@@ -169,20 +145,11 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_bus_creation() {
+    async fn bus_smoke() {
         let bus = MessageBus::new().await.unwrap();
-        let agents = bus.list_agents().await.unwrap();
-        assert!(agents.is_empty());
-    }
-
-    #[tokio::test]
-    async fn test_message_send() {
-        let bus = MessageBus::new().await.unwrap();
-        let rx = bus.subscribe(AgentId("test-agent".to_string()), Topic::System).await;
-
-        bus.send(Topic::System, "test message").await.unwrap();
-
-        let received = tokio::time::timeout(std::time::Duration::from_secs(1), rx.recv()).await;
-        assert!(received.is_ok());
+        let mut rx = bus.subscribe(AgentId("tester".into()), Topic::System).await;
+        bus.send(Topic::System, "hello").await.unwrap();
+        let msg = rx.recv().await.unwrap();
+        assert_eq!(msg.payload, serde_json::Value::String("hello".into()));
     }
 }

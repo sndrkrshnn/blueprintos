@@ -2,7 +2,6 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 use tracing_subscriber;
 
-mod agent;
 mod bus;
 
 use bus::MessageBus;
@@ -14,9 +13,9 @@ struct Args {
     #[command(subcommand)]
     command: Commands,
 
-    /// Enable voice mode (STT/TTS integration)
-    #[arg(long, default_value = "false")]
-    voice: bool,
+    /// Enable speech mode (STS integration)
+    #[arg(long, default_value_t = false)]
+    sts: bool,
 
     /// Qwen3 Omni API endpoint
     #[arg(long, default_value = "https://api.qwen.ai/v1/omni")]
@@ -45,8 +44,8 @@ async fn main() -> Result<()> {
 
     match args.command {
         Commands::Start => {
-            tracing::info!("Starting BlueprintOS Core with voice={}", args.voice);
-            if args.voice {
+            tracing::info!("Starting BlueprintOS Core with sts={}", args.sts);
+            if args.sts {
                 bus.start_voice_mode(args.api_endpoint).await?;
             } else {
                 bus.run().await?;
