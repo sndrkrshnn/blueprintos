@@ -7,6 +7,7 @@ mod bus;
 mod policy;
 mod protocol;
 mod tools;
+mod server;
 
 use agent::AgentRuntime;
 use bus::MessageBus;
@@ -43,6 +44,11 @@ enum Commands {
     Repl,
     /// One-shot agent command
     Agent { input: String },
+    /// Start HTTP API for STS/UI integration
+    Api {
+        #[arg(long, default_value = "0.0.0.0:8787")]
+        listen: String,
+    },
 }
 
 #[tokio::main]
@@ -71,6 +77,10 @@ async fn main() -> Result<()> {
         }
         Commands::Repl => run_repl(&agent, args.auto_approve).await?,
         Commands::Agent { input } => run_one_shot(&agent, &input, args.auto_approve).await?,
+        Commands::Api { listen } => {
+            let state = server::ApiState::new(agent);
+            server::serve(&listen, state)?;
+        }
     }
 
     Ok(())

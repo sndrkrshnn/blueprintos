@@ -50,9 +50,11 @@ Wrappers:
 - `/usr/local/bin/munin-ui`
 - `/usr/local/bin/munin-firstboot-wizard`
 
-## Agentic runtime (current)
-- `munin-core` now includes a tool router + policy engine + agent REPL
-- supports tool-call flow for system/file/shell/network actions
+## Agentic runtime (Phase 2)
+- `munin-core` includes tool router + policy engine + agent REPL
+- `munin-core api` exposes transcript + approval endpoints
+- `munin-sts` can forward transcript events into core API
+- `munin-ui` polls pending approvals and can approve/deny tool calls
 - risky actions are marked for confirmation unless `--auto-approve` is used
 
 ## Learning docs

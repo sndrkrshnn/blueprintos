@@ -9,8 +9,10 @@ class MuninUI {
         this.thoughtText = document.getElementById('thought-text');
         this.resultGrid = document.getElementById('result-grid');
         this.historyList = document.getElementById('history-list');
+        this.pendingList = document.getElementById('pending-list');
         this.voiceStatus = document.getElementById('voice-status');
         this.systemStatus = document.getElementById('system-status');
+        this.coreApi = (window.MUNIN_CORE_API || 'http://127.0.0.1:8787');
 
         this.init();
     }
@@ -20,6 +22,7 @@ class MuninUI {
         this.connectWebSocket();
         this.startAnimation();
         this.updateTime();
+        this.startPendingPoll();
 
         setInterval(() => this.updateTime(), 1000);
     }
@@ -141,6 +144,60 @@ class MuninUI {
     updateTime() {
         const time = document.getElementById('time');
         time.textContent = new Date().toLocaleTimeString();
+    }
+
+    startPendingPoll() {
+        const tick = async () => {
+            try {
+                const res = await fetch(`${this.coreApi}/v1/pending`);
+                const data = await res.json();
+                this.renderPending(data.pending || []);
+            } catch (_) {
+                // core api might not be running yet
+            }
+        };
+        tick();
+        setInterval(tick, 2500);
+    }
+
+    renderPending(items) {
+        if (!this.pendingList) return;
+        this.pendingList.innerHTML = '';
+        if (!items.length) {
+            this.pendingList.innerHTML = '<div style="color:#888">No pending approvals</div>';
+            return;
+        }
+        items.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'pending-item';
+            el.innerHTML = `
+              <div>
+                <div><strong>${item.tool}</strong></div>
+                <div style="font-size:0.8rem;color:#aaa">${JSON.stringify(item.args)}</div>
+              </div>
+              <div class="pending-actions">
+                <button class="approve">Approve</button>
+                <button class="deny">Deny</button>
+              </div>
+            `;
+            el.querySelector('.approve').onclick = () => this.confirmTool(item.id, true);
+            el.querySelector('.deny').onclick = () => this.confirmTool(item.id, false);
+            this.pendingList.appendChild(el);
+        });
+    }
+
+    async confirmTool(id, approve) {
+        try {
+            const res = await fetch(`${this.coreApi}/v1/confirm`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, approve })
+            });
+            const data = await res.json();
+            this.addToHistory(`tool ${approve ? 'approve' : 'deny'} ${id}`, JSON.stringify(data));
+        } catch (e) {
+            this.addToHistory('tool confirm failed', String(e));
+        }
     }
 
     // Animation loop for visual effects

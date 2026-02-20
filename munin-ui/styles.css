@@ -135,13 +135,37 @@ body {
 }
 
 /* Command history */
+#pending-approvals,
 #command-history {
     background: rgba(255, 255, 255, 0.03);
     border-radius: 12px;
     padding: 1rem;
     max-height: 200px;
     overflow-y: auto;
+    margin-top: 0.5rem;
 }
+
+.pending-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.pending-actions button {
+    margin-left: 0.5rem;
+    border: none;
+    border-radius: 6px;
+    padding: 0.35rem 0.6rem;
+    cursor: pointer;
+}
+
+.pending-actions .approve { background: #16a34a; color: #fff; }
+.pending-actions .deny { background: #dc2626; color: #fff; }
 
 .history-header {
     font-size: 0.8rem;

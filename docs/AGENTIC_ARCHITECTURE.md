@@ -42,8 +42,16 @@ Responsibilities:
 4. Tool executes (or asks confirmation)
 5. Result returned to speech + UI
 
+## Phase 2 added
+- `munin-core` API mode (`munin-core api --listen 0.0.0.0:8787`)
+- STS -> Core handoff endpoint: `POST /v1/transcript`
+- pending approval queue:
+  - `GET /v1/pending`
+  - `POST /v1/confirm` `{id, approve}`
+- `munin-ui` polls pending approvals and provides approve/deny controls
+
 ## Next steps
 - replace rule-based planner with model-assisted planner
-- add confirmation UX in UI (approve/deny)
-- add persistent memory store for sessions
+- persist pending actions/events to disk (SQLite)
 - add scoped permissions per tool domain
+- stream tool/event updates to UI via websocket

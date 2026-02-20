@@ -30,6 +30,10 @@ struct Args {
 
     #[arg(long, default_value_t = true)]
     wake_word: bool,
+
+    /// Munin core API endpoint
+    #[arg(long, default_value = "http://127.0.0.1:8787")]
+    core_endpoint: String,
 }
 
 #[derive(Subcommand, Debug)]
@@ -49,6 +53,7 @@ struct STSService {
     session_id: String,
     api_endpoint: String,
     api_key: String,
+    core_endpoint: String,
     client: Client,
 }
 
@@ -64,20 +69,38 @@ impl STSService {
             session_id: Uuid::new_v4().to_string(),
             api_endpoint: args.api_endpoint.clone(),
             api_key,
+            core_endpoint: args.core_endpoint.clone(),
             client: Client::new(),
         })
     }
 
     async fn run(&self) -> Result<()> {
         info!("Starting MuninOS STS session: {}", self.session_id);
-        info!("Pipeline: audio-in -> qwen3-omni -> audio-out");
+        info!("Pipeline: audio-in -> qwen3-omni -> audio-out -> tool-calling core");
+
+        let test_text = std::env::var("MUNIN_STS_TEST_TEXT").ok();
 
         loop {
-            // Placeholder runtime loop for now.
-            // Next step: wire microphone capture + websocket/http streaming.
-            sleep(Duration::from_secs(2)).await;
+            if let Some(text) = &test_text {
+                let _ = self.send_transcript(text).await;
+            }
+            sleep(Duration::from_secs(3)).await;
             info!("STS service alive");
         }
+    }
+
+    async fn send_transcript(&self, transcript: &str) -> Result<()> {
+        let payload = serde_json::json!({
+            "session_id": self.session_id,
+            "locale": "en-US",
+            "transcript": transcript
+        });
+
+        let url = format!("{}/v1/transcript", self.core_endpoint.trim_end_matches('/'));
+        let resp = self.client.post(&url).json(&payload).send().await?;
+        let text = resp.text().await.unwrap_or_default();
+        info!("core transcript response: {}", text);
+        Ok(())
     }
 
     async fn ping_provider(&self) -> Result<()> {
