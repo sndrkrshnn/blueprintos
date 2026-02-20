@@ -8,13 +8,13 @@ sudo apt install -y build-essential git bc bison flex libssl-dev libelf-dev \
   rsync cpio dosfstools qemu-system-x86
 ```
 
-## Build flow
+## Build flow (Apple Silicon)
 ```bash
-make bins
-make rootfs
-make validate
-make iso
-make qemu
+ARCH=arm64 make bins
+ARCH=arm64 make rootfs
+ARCH=arm64 make validate
+ARCH=arm64 make iso
+ARCH=arm64 make qemu
 ```
 
 Or run end-to-end in one shot:
@@ -38,7 +38,7 @@ Artifacts:
 - `build/live/vmlinuz`
 - `build/live/initrd.img`
 - `build/live/filesystem.squashfs`
-- `build/muninos-dev.iso`
+- `build/muninos-arm64-dev.iso` (or `muninos-amd64-dev.iso` for x86 builds)
 
 ## Optional custom kernel
 ```bash

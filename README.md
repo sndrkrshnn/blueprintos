@@ -16,19 +16,19 @@ sudo apt install -y build-essential git bc bison flex libssl-dev libelf-dev \
   debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools \
   rsync cpio dosfstools qemu-system-x86
 
-make bins      # builds munin-core, munin-sts, munin-ui
-make rootfs
-make validate  # verifies binaries/units/assets inside rootfs
-make iso
-make smoke     # headless QEMU boot log smoke test
-make qemu
+ARCH=arm64 make bins      # builds munin-core, munin-sts, munin-ui
+ARCH=arm64 make rootfs
+ARCH=arm64 make validate  # verifies binaries/units/assets inside rootfs
+ARCH=arm64 make iso
+ARCH=arm64 make smoke     # headless QEMU boot log smoke test
+ARCH=arm64 make qemu
 ```
 
 Artifacts:
 - `build/live/vmlinuz`
 - `build/live/initrd.img`
 - `build/live/filesystem.squashfs`
-- `build/muninos-dev.iso`
+- `build/muninos-<arch>-dev.iso` (e.g., `build/muninos-arm64-dev.iso`)
 
 ## Custom kernel path
 If `build/kernel/bzImage` exists (from `make kernel`), ISO build automatically prefers it.

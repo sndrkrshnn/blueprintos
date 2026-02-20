@@ -2,8 +2,9 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-ISO="$ROOT/build/muninos-dev.iso"
-LOG_DIR="$ROOT/build/smoke"
+ARCH="${ARCH:-$(cat "$ROOT/build/arch" 2>/dev/null || echo arm64)}"
+ISO="$ROOT/build/muninos-${ARCH}-dev.iso"
+LOG_DIR="$ROOT/build/smoke-${ARCH}"
 SERIAL_LOG="$LOG_DIR/serial.log"
 TIMEOUT_SECS="${TIMEOUT_SECS:-120}"
 QEMU_BIN="${QEMU_BIN:-qemu-system-x86_64}"

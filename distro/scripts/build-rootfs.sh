@@ -6,9 +6,16 @@ BUILD="$ROOT/build"
 OVERLAY="$ROOT/distro/rootfs/overlay"
 PKGS_FILE="$ROOT/distro/rootfs/packages/base.txt"
 
+# Build architecture (amd64|arm64)
+ARCH="${ARCH:-arm64}"
+case "$ARCH" in
+  amd64|arm64) ;;
+  *) echo "[rootfs] ERROR: unsupported ARCH=$ARCH (use amd64 or arm64)"; exit 1 ;;
+esac
+
 # Default workspace (can be overridden)
 WORK_BASE="${WORK_BASE:-$ROOT/workdir}"
-WORK="$WORK_BASE/rootfs"
+WORK="$WORK_BASE/rootfs-$ARCH"
 
 # Use sudo only when needed/available
 if [[ "$(id -u)" -eq 0 ]]; then
@@ -47,13 +54,20 @@ $SUDO mkdir -p "$WORK" "$BUILD/live"
 # Persist effective rootfs path for validators/next stages
 $SUDO mkdir -p "$BUILD"
 echo "$WORK" | $SUDO tee "$BUILD/rootfs.path" >/dev/null
+echo "$ARCH" | $SUDO tee "$BUILD/arch" >/dev/null
 
 if [[ ! -f "$WORK/.debootstrap_done" ]]; then
-  $SUDO debootstrap --arch=amd64 bookworm "$WORK" http://deb.debian.org/debian
+  $SUDO debootstrap --arch="$ARCH" bookworm "$WORK" http://deb.debian.org/debian
   $SUDO touch "$WORK/.debootstrap_done"
 fi
 
-PKGS=$(tr '\n' ' ' < "$PKGS_FILE")
+if [[ "$ARCH" == "arm64" ]]; then
+  KERNEL_PKG="linux-image-arm64"
+else
+  KERNEL_PKG="linux-image-amd64"
+fi
+
+PKGS="$(tr '\n' ' ' < "$PKGS_FILE") $KERNEL_PKG"
 $SUDO chroot "$WORK" bash -lc "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y $PKGS"
 
 # overlay + firstboot/services
