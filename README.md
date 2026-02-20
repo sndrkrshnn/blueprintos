@@ -30,6 +30,11 @@ Artifacts:
 - `build/live/filesystem.squashfs`
 - `build/muninos-<arch>-dev.iso` (e.g., `build/muninos-arm64-dev.iso`)
 
+Default login for generated ISO:
+- user: `munin`
+- pass: `munin`
+(override at build time with `DEFAULT_USER` and `DEFAULT_PASS`)
+
 ## Custom kernel path
 If `build/kernel/bzImage` exists (from `make kernel`), ISO build automatically prefers it.
 

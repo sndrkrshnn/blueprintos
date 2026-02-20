@@ -13,6 +13,10 @@ case "$ARCH" in
   *) echo "[rootfs] ERROR: unsupported ARCH=$ARCH (use amd64 or arm64)"; exit 1 ;;
 esac
 
+# Default login user for generated images (override via env)
+DEFAULT_USER="${DEFAULT_USER:-munin}"
+DEFAULT_PASS="${DEFAULT_PASS:-munin}"
+
 # Default workspace (can be overridden)
 WORK_BASE="${WORK_BASE:-$ROOT/workdir}"
 WORK="$WORK_BASE/rootfs-$ARCH"
@@ -69,6 +73,14 @@ fi
 
 PKGS="$(tr '\n' ' ' < "$PKGS_FILE") $KERNEL_PKG"
 $SUDO chroot "$WORK" bash -lc "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y $PKGS"
+
+# create default user for login (future ISOs)
+$SUDO chroot "$WORK" bash -lc "id -u '$DEFAULT_USER' >/dev/null 2>&1 || useradd -m -s /bin/bash -G sudo,audio,video,netdev '$DEFAULT_USER'"
+$SUDO chroot "$WORK" bash -lc "echo '$DEFAULT_USER:$DEFAULT_PASS' | chpasswd"
+$SUDO chroot "$WORK" bash -lc "passwd -u '$DEFAULT_USER' >/dev/null 2>&1 || true"
+
+# ensure root has password too (same default; user should rotate after first login)
+$SUDO chroot "$WORK" bash -lc "echo 'root:$DEFAULT_PASS' | chpasswd"
 
 # overlay + firstboot/services
 $SUDO rsync -a "$OVERLAY/" "$WORK/"

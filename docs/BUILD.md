@@ -17,6 +17,11 @@ ARCH=arm64 make iso
 ARCH=arm64 make qemu
 ```
 
+Optional user override:
+```bash
+ARCH=arm64 DEFAULT_USER=munin DEFAULT_PASS=munin make rootfs
+```
+
 Or run end-to-end in one shot:
 ```bash
 make ci
@@ -69,6 +74,7 @@ TIMEOUT_SECS=180 make smoke
 ```
 
 ## First boot behavior
+- default login user is created during rootfs build (`munin/munin` by default)
 - `munin-firstboot.service` runs `munin-firstboot-wizard` once
 - captures hostname/timezone and writes `/etc/muninos/setup.env`
 - enables `munin-core`, `munin-sts`, `munin-ui`
