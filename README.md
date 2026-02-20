@@ -6,7 +6,7 @@ MuninOS is a **standalone Linux distribution** project (not an app inside anothe
 - Own distro tree (`distro/`)
 - Custom kernel config (`distro/kernel/configs/munin_defconfig`)
 - Rootfs pipeline (`debootstrap`) + bootable ISO pipeline (`grub-mkrescue`)
-- Native services on boot: `munin-core`, `munin-sts`, `munin-ui`
+- Native services on boot: `munin-core`, `munin-sts`, `munin-ui` (all binary-first)
 - First-boot wizard (`munin-firstboot-wizard`) for initial host setup
 
 ## Build quickstart (Debian/Ubuntu host)
@@ -16,7 +16,7 @@ sudo apt install -y build-essential git bc bison flex libssl-dev libelf-dev \
   debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools \
   rsync cpio dosfstools qemu-system-x86
 
-make bins
+make bins      # builds munin-core, munin-sts, munin-ui
 make rootfs
 make iso
 make qemu

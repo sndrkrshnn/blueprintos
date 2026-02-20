@@ -21,6 +21,7 @@ build_one() {
 
 build_one "munin-core" "munin-core"
 build_one "munin-sts" "munin-sts"
+build_one "munin-ui-service" "munin-ui"
 
 echo "[munin-bin] done -> $OUT"
 ls -lh "$OUT"

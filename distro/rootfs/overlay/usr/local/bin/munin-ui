@@ -1,15 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Preferred: packaged visual shell binary/service
-if [[ -x /opt/muninos/bin/munin-ui ]]; then
-  exec /opt/muninos/bin/munin-ui
+BIN="/opt/muninos/bin/munin-ui"
+if [[ -x "$BIN" ]]; then
+  exec "$BIN" --host 0.0.0.0 --port 8080 --ui-dir /opt/muninos/ui
 fi
 
-# Fallback: serve static dashboard if present
-if [[ -d /opt/muninos/ui ]]; then
-  exec python3 -m http.server 8080 --directory /opt/muninos/ui
-fi
-
-echo "[munin-ui] no ui runtime found at /opt/muninos/bin/munin-ui or /opt/muninos/ui" >&2
+echo "[munin-ui] missing native binary: $BIN" >&2
 exit 1

@@ -19,6 +19,7 @@ make qemu
 `make bins` compiles:
 - `munin-core`
 - `munin-sts`
+- `munin-ui` (from `munin-ui-service`)
 
 and stages them into `build/munin-bin/` for rootfs embedding.
 
