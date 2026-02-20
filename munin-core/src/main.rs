@@ -7,7 +7,7 @@ mod bus;
 use bus::MessageBus;
 
 #[derive(Parser, Debug)]
-#[command(name = "blueprint-core")]
+#[command(name = "munin-core")]
 #[command(author, version, about, long_about = None)]
 struct Args {
     #[command(subcommand)]

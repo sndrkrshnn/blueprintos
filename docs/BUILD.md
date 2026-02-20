@@ -10,10 +10,17 @@ sudo apt install -y build-essential git bc bison flex libssl-dev libelf-dev \
 
 ## Build flow
 ```bash
+make bins
 make rootfs
 make iso
 make qemu
 ```
+
+`make bins` compiles:
+- `munin-core`
+- `munin-sts`
+
+and stages them into `build/munin-bin/` for rootfs embedding.
 
 Artifacts:
 - `build/live/vmlinuz`

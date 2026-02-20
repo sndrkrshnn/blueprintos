@@ -1,8 +1,11 @@
 SHELL := /bin/bash
 
-.PHONY: all kernel rootfs iso qemu clean
+.PHONY: all bins kernel rootfs iso qemu clean
 
-all: rootfs iso
+all: bins rootfs iso
+
+bins:
+	bash distro/scripts/build-munin-binaries.sh
 
 kernel:
 	bash distro/scripts/build-kernel.sh

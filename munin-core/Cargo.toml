@@ -1,19 +1,18 @@
 [package]
-name = "blueprint-sts"
+name = "munin-core"
 version = "0.1.0"
 edition = "2021"
-description = "MuninOS Speech-to-Speech service with Qwen3 Omni"
+description = "MuninOS Core — Agent orchestration and message bus"
 
 [[bin]]
-name = "blueprint-sts"
+name = "munin-core"
 path = "src/main.rs"
 
 [dependencies]
 anyhow = "1.0"
-clap = { version = "4.4", features = ["derive", "env"] }
+clap = { version = "4.4", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-reqwest = { version = "0.11", features = ["json"] }
 tokio = { version = "1.35", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"

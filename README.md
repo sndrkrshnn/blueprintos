@@ -16,6 +16,7 @@ sudo apt install -y build-essential git bc bison flex libssl-dev libelf-dev \
   debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools \
   rsync cpio dosfstools qemu-system-x86
 
+make bins
 make rootfs
 make iso
 make qemu
@@ -43,5 +44,4 @@ Wrappers:
 - `/usr/local/bin/munin-firstboot-wizard`
 
 ## Status
-This push focuses on boot-first distro bring-up and native service wiring.
-Next: replace wrapper placeholders with compiled Munin binaries in `/opt/muninos/bin` by default image build.
+Boot-first distro bring-up is in place, and build pipeline now supports compiling + embedding Munin binaries into `/opt/muninos/bin` during image creation.

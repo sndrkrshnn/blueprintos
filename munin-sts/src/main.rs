@@ -7,7 +7,7 @@ use tracing::{error, info};
 use uuid::Uuid;
 
 #[derive(Parser, Debug)]
-#[command(name = "blueprint-sts")]
+#[command(name = "munin-sts")]
 #[command(author, version, about = "MuninOS Speech-to-Speech service")]
 struct Args {
     #[command(subcommand)]

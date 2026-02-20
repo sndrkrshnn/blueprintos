@@ -9,10 +9,10 @@ MuninOS is a standalone Linux distribution with its own kernel path and native r
 - ISO generation via GRUB rescue flow
 - QEMU boot test script
 - Service scaffolding (`munin-core`, `munin-sts`, `munin-ui`)
-- Naming migration from BlueprintOS -> MuninOS
+- Naming migration completed across code, docs, build artifacts, and service names
 
 ## Immediate next milestones
 1. Validate boot on QEMU and fix any live-boot/initramfs issues
-2. Replace placeholder service binaries with real core/sts/ui launches
+2. Complete image-native service runtime (core/sts binaries now embedded; finalize UI binary packaging)
 3. Add first-boot provisioning (users, locale, network defaults)
 4. Harden kernel profile and switch to custom kernel as default path

@@ -22,7 +22,13 @@ sudo rsync -a "$OVERLAY/" "$WORK/"
 
 # ship UI assets into OS image
 sudo mkdir -p "$WORK/opt/muninos/ui"
-sudo rsync -a "$ROOT/blueprint-ui/" "$WORK/opt/muninos/ui/" || true
+sudo rsync -a "$ROOT/munin-ui/" "$WORK/opt/muninos/ui/" || true
+
+# ship compiled Munin binaries when available
+if [[ -d "$ROOT/build/munin-bin" ]]; then
+  sudo mkdir -p "$WORK/opt/muninos/bin"
+  sudo rsync -a "$ROOT/build/munin-bin/" "$WORK/opt/muninos/bin/"
+fi
 
 # ensure executable scripts
 sudo chmod +x \

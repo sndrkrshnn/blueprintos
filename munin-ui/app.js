@@ -1,8 +1,8 @@
 // MuninOS Visual Interface - JavaScript
 
-class BlueprintUI {
+class MuninUI {
     constructor() {
-        this.canvas = document.getElementById('blueprint-canvas');
+        this.canvas = document.getElementById('munin-canvas');
         this.ctx = this.canvas.getContext('2d');
         this.socket = null;
         this.thoughtBubble = document.getElementById('thought-bubble');
@@ -218,5 +218,5 @@ class BlueprintUI {
 
 // Initialize UI when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    window.blueprintUI = new BlueprintUI();
+    window.muninUI = new MuninUI();
 });
